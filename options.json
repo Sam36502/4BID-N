@@ -1,0 +1,30 @@
+{
+    "splash_millis": 500,
+    "pixel_size": 50,
+    "target_fps": 30,
+    "beeper_vol": 0.5,
+    "beeper_sample": "sine.wav",
+    "color_overlay": {
+        "R": 255,
+        "G": 127,
+        "B": 127,
+        "A": 127
+    },
+    "old_menu": false,
+    "editor_overlay": true,
+    "debug_keycodes": false,
+    "controls": {
+        "kc_left": 263,
+        "kc_right": 262,
+        "kc_up": 265,
+        "kc_down": 264,
+        "kc_exit": 256,
+        "kc_enter": 257,
+        "kc_back": 259,
+        "kc_save": 83,
+        "kc_load": 76,
+        "kc_opts": 0,
+        "kc_overlay": 258,
+        "mouse_left": 0
+    }
+}
