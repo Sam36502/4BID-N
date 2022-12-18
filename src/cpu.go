@@ -2,7 +2,9 @@ package main
 
 import (
 	"io/ioutil"
+	"math"
 	"math/rand"
+	"time"
 )
 
 const (
@@ -26,7 +28,7 @@ const (
 	ASM_AND = 0xA // Bitwise AND memory value and acc
 	ASM_SHF = 0xB // Bitwise shift (l/r & rot based on high bits)
 
-	//ASM_JMP = 0xC //
+	ASM_SLP  = 0xC // Sleeps for B seconds at A scale
 	ASM_BNE  = 0xD // Skips B many instructions if acc does not equal A
 	ASM_JMPI = 0xE // Jump to immediate program location
 	ASM_JMPM = 0xF // Jump to memory jump vector
@@ -206,6 +208,13 @@ func (f *CPU) PerformInstruction(progIndex byte) byte {
 		if f.acc != ins.arg1 {
 			nextIndex += ins.arg2
 		}
+
+	case ASM_SLP:
+		scale := (ins.arg1 >> 1) % 8
+		mul := math.Pow10(int(scale) - 4)
+		length := (ins.arg1%2)<<4 | ins.arg2
+		dur := time.Duration(mul * float64(length) * float64(time.Second.Milliseconds()))
+		time.Sleep(dur)
 
 	case ASM_JMPI:
 		nextIndex = (ins.arg2 * 0xF) + ins.arg1

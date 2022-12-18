@@ -26,7 +26,7 @@ It's pronounced like "forbidden" and stands for *"4-Bit I DunNo"*
 | 1001   | 9   | ORA    | $ $       | Bitwise OR the acc with the value at address AB              |
 | 1010   | A   | AND    | $ $       | Bitwise AND the acc with the value at address AB             |
 | 1011   | B   | SHF    | # -       | Bitwise shifts the acc left or right (see Shifting below)    |
-| 1100   | C   | SLP    | # #       | Waits for the A many seconds at scale B (see Sleeping below) |
+| 1100   | C   | SLP    | # #       | Waits for the B many seconds at scale A (see Sleeping below) |
 | 1101   | D   | BNE    | # #       | Skips the next B many instructions if acc doesn't equal A    |
 | 1110   | E   | JMP    | # #       | Jumps to the position at program instruction A page B        |
 | 1111   | F   | JMP    | $ $       | Jumps to the instruction pointed to at memory location A & B |
