@@ -14,7 +14,7 @@ It's pronounced like "forbidden" and stands for *"4-Bit I DunNo"*
 ### Instructions
 | Binary | Hex | Opcode | Arguments | Description                                                  |
 |--------|-----|--------|-----------|--------------------------------------------------------------|
-| 0000   | 0   | NOP    | - -       | Does Nothing                                                 |
+| 0000   | 0   | BRK    | - -       | Halts the program                                            |
 | 0001   | 1   | LDA    | # -       | Loads an immediate value into acc                            |
 | 0010   | 2   | LDA    | $ $       | Loads the value at address AB into acc                       |
 | 0011   | 3   | STA    | $ $       | Stores the value of acc to address AB                        |
@@ -26,10 +26,10 @@ It's pronounced like "forbidden" and stands for *"4-Bit I DunNo"*
 | 1001   | 9   | ORA    | $ $       | Bitwise OR the acc with the value at address AB              |
 | 1010   | A   | AND    | $ $       | Bitwise AND the acc with the value at address AB             |
 | 1011   | B   | SHF    | # -       | Bitwise shifts the acc left or right (see Shifting below)    |
-| 1100   | C   |        | - -       | Not assigned                                                 |
-| 1101   | D   |        | - -       | Not assigned                                                 |
-| 1110   | E   | BNE    | # #       | Skips the next B many instructions if acc doesn't equal A    |
-| 1111   | F   | JMP    | # #       | Jumps to the instruction A and page B of the program         |
+| 1100   | C   | SLP    | # #       | Waits for the A many seconds at scale B (see Sleeping below) |
+| 1101   | D   | BNE    | # #       | Skips the next B many instructions if acc doesn't equal A    |
+| 1110   | E   | JMP    | # #       | Jumps to the position at program instruction A page B        |
+| 1111   | F   | JMP    | $ $       | Jumps to the instruction pointed to at memory location A & B |
 
 #### Arguments:
 The arguments column shows how arguments A & B are interpreted according to following symbols
@@ -59,6 +59,45 @@ and the amount to shift by the lower 2 bits:
     LDA     #b1000  ; Load 1000 into acc
     SHF     #b1011  ; Circular, left-shift by 3
                     ; acc = b0100
+
+#### Sleeping
+To maximise the useful time intervals that can be waited with this instruction,
+the arguments have been split into a 5-bit number and a 3-bit scale. The scale
+sets what order of magnitude we're using and consists of the upper 3 bits of argument B:
+
+| Bits | Nr. | Multiplier | Digits |
+|------|-----|------------|--------|
+| 000  | 0   | 0.0001     | 0.00XX |
+| 001  | 1   | 0.001      | 0.0XX  |
+| 010  | 2   | 0.01       | 0.XX   |
+| 011  | 3   | 0.1        | X.X    |
+| 100  | 4   | 1          | XX     |
+| 101  | 5   | 10         | XX0    |
+| 110  | 6   | 100        | XX00   |
+| 111  | 7   | 1000       | XX000  |
+
+Then argument A plus the lowest bit of B (as the 16s place) combine to say how many
+seconds to wait. E.g.:
+
+    SLP     #b1000  #b0101  ; Waits 5 seconds
+    SLP     #b1001  #b1111  ; Waits 31 seconds
+    SLP     #b0110  #b0111  ; Waits 500 milliseconds
+
+#### Jumping
+There are two variants of the `JMP` instruction, the first (`0xE`) jumps to a direct program address
+with instruction number A and program page B.
+
+The second (`0xF`) jumps to the program address same as the first jump but the program address is
+taken from the zero page. E.g.:
+
+    LDA     #$A         ; Store 0xA at memory location 1 on the zero-page
+    STA     $1      $0
+    
+    LDA     #$B         ; Store 0xB at memory location 2 on the zero-page
+    STA     $2      $0
+    
+    JMP     $2      $1    ; Resolves jump vector from addresses 0x02 -> 0xB and 0x01 -> 0xA
+                        ; Jumps to instruction 0xB on program page 0xA
     
 ### F-Page
 The F-Page (memory page 15) is reserved for special hardware access such as the input states and
@@ -136,6 +175,10 @@ Square-Mode selects a 2x2 square with its top-left corner at the given position:
     -------...
     -------...
     ..........
+
+The order of these operations is that the screen is first cleared and/or inverted,
+then the pixel value address (`0x6`) is updated with the current value on the screen,
+before finally - after the next program instruction has run - the value at the pixel value address (`0x6`) is written to the screen
 
 ### Beeper
 The beeper is a basic audio output which can be set to a certain pitch and volume and

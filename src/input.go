@@ -19,7 +19,7 @@ type ControlConfig struct {
 	LeftMouse  int32 `json:"mouse_left"`
 }
 
-func HandleMenu(f *FBOD) {
+func HandleMenu(f *CPU) {
 	if rl.IsKeyPressed(g_options.Controls.UpKey) {
 		g_menuState = 0
 	}
@@ -28,19 +28,18 @@ func HandleMenu(f *FBOD) {
 
 		// Set up vm for running
 		f.ClearMem()
-		f.ReadFlags()
 		g_insPointer = 0
 	}
 	if rl.IsKeyPressed(g_options.Controls.SelectKey) {
 		if g_menuState == 0 {
-			g_currentScreen = FBOD_SCRI_EDITOR
+			g_currentScreen = SCRI_EDITOR
 		} else {
-			g_currentScreen = FBOD_SCRI_RUN
+			g_currentScreen = SCRI_RUN
 		}
 	}
 }
 
-func HandleEditor(f *FBOD) {
+func HandleEditor(f *CPU) {
 	if rl.IsKeyPressed(g_options.Controls.UpKey) {
 		g_editorPage--
 		if g_editorPage < 0 {
@@ -57,7 +56,7 @@ func HandleEditor(f *FBOD) {
 		g_options.EditorOverlay = !g_options.EditorOverlay
 	}
 	if rl.IsKeyPressed(g_options.Controls.BackKey) {
-		g_currentScreen = FBOD_SCRI_MENU
+		g_currentScreen = SCRI_MENU
 	}
 
 	// Handle mouse clicks
@@ -81,8 +80,15 @@ func HandleEditor(f *FBOD) {
 
 func HandleRun() {
 	if rl.IsKeyPressed(g_options.Controls.BackKey) {
-		g_currentScreen = FBOD_SCRI_MENU
+		g_currentScreen = SCRI_MENU
 	}
+}
+
+func (c *CPU) HandleInputs() {
+	// Player 1
+	c.mem[0xF][FPG_P1_DPAD] = GetArrowsNybl()
+
+	// TODO: Player 2
 }
 
 // Returns the state of the arrow keys as a nybl:

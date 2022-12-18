@@ -9,13 +9,20 @@ import (
 	"github.com/sqweek/dialog"
 )
 
-var g_currentScreen int = FBOD_SCRI_SPLASH
-var g_insPointer byte = 0
+const (
+	WINDOW_TITLE = "FBID-N"
+)
+
+var g_currentScreen int
+var g_insPointer byte
 
 func main() {
 	err := LoadOptions()
 	if err != nil {
-		fmt.Printf("\n[ERROR]: Failed to load options file '%s'\n  Please make sure a valid options file is in the same directory as the 4BOD executable\n", FBOD_OPT_FILE)
+		fmt.Printf(
+			"\n[ERROR]: Failed to load options file '%s'\n  Please make sure a valid options file is in the same directory as the executable\n",
+			OPT_FILE,
+		)
 		return
 	}
 	InitAudio()
@@ -24,14 +31,14 @@ func main() {
 	rand.Int()
 
 	ps := int32(g_options.PixelSize)
-	rl.InitWindow(16*ps, 16*ps, "4BOD")
+	rl.InitWindow(16*ps, 16*ps, WINDOW_TITLE)
 	if g_options.TargetFPS > 0 {
 		rl.SetTargetFPS(int32(g_options.TargetFPS))
 	}
 
 	rl.SetExitKey(g_options.Controls.ExitKey)
 
-	fvm := NewFBOD()
+	comp := NewCPU()
 
 	lastKey := int32(0)
 	for !rl.WindowShouldClose() {
@@ -39,26 +46,27 @@ func main() {
 
 		switch g_currentScreen {
 
-		case FBOD_SCRI_SPLASH:
+		case SCRI_SPLASH:
 			DrawBitmap(BMP_SPLASH)
 			rl.EndDrawing()
 			wait := g_options.SplashMillis * int(time.Millisecond)
 			time.Sleep(time.Duration(wait))
-			g_currentScreen = FBOD_SCRI_MENU
+			g_currentScreen = SCRI_MENU
 
-		case FBOD_SCRI_MENU:
-			HandleMenu(fvm)
+		case SCRI_MENU:
+			HandleMenu(comp)
 			DrawMenu()
 
-		case FBOD_SCRI_EDITOR:
-			HandleEditor(fvm)
-			DrawEditor(fvm)
+		case SCRI_EDITOR:
+			HandleEditor(comp)
+			DrawEditor(comp)
 
-		case FBOD_SCRI_RUN:
+		case SCRI_RUN:
 			HandleRun()
-			g_insPointer = fvm.PerformInstruction(g_insPointer)
-			fvm.handleFPage()
-			DrawBitmap(fvm.screen)
+			comp.HandleScreen() // Updates F-Page and screen
+			g_insPointer = comp.PerformInstruction(g_insPointer)
+			comp.handleFPage()
+			DrawBitmap(comp.screen)
 		}
 
 		// Universal Keys
@@ -67,7 +75,7 @@ func main() {
 			if err != nil {
 				ErrorPopup("Failed to get filename")
 			} else {
-				err = fvm.LoadProgram(filename)
+				err = comp.LoadProgram(filename)
 				if err != nil {
 					ErrorPopup("Failed to load program")
 				}
@@ -79,7 +87,7 @@ func main() {
 			if err != nil {
 				ErrorPopup("Failed to get filename")
 			} else {
-				err = fvm.SaveProgram(filename)
+				err = comp.SaveProgram(filename)
 				if err != nil {
 					ErrorPopup("Failed to save program")
 				}
@@ -91,7 +99,7 @@ func main() {
 			if key != int32(lastKey) && key != 0 {
 				lastKey = key
 			}
-			rl.DrawText(fmt.Sprintf("Last Key Pressed: %d", lastKey), 5, 5, 20, g_colourFG)
+			rl.DrawText(fmt.Sprintf("Last Key Pressed: %d", lastKey), 5, 5, 20, g_options.ColourFG)
 		}
 
 		rl.EndDrawing()

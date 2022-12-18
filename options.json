@@ -1,16 +1,27 @@
 {
-    "splash_millis": 500,
+    "splash_millis": 750,
     "pixel_size": 50,
-    "target_fps": 30,
+    "target_fps": 120,
     "beeper_vol": 0.5,
     "beeper_sample": "sine.wav",
+    "color_fg": {
+        "R": 0,
+        "G": 0,
+        "B": 0,
+        "A": 255
+    },
+    "color_bg": {
+        "R": 127,
+        "G": 255,
+        "B": 127,
+        "A": 255
+    },
     "color_overlay": {
         "R": 255,
         "G": 127,
         "B": 127,
         "A": 127
     },
-    "old_menu": false,
     "editor_overlay": true,
     "debug_keycodes": false,
     "controls": {
