@@ -1,0 +1,26 @@
+;
+;   Simple program to demonstrate horizontal-mode
+;   drawing and the RNG 
+;
+
+    LDA     #b0001                  ; Set screen to horizontal mode
+    STA     _scr_opt    _fpage
+
+.label loop
+
+    LDA     _rand       _fpage      ; Draw random data to the screen
+    STA     _scr_val    _fpage
+
+    LDA     _scr_x      _fpage      ; Increment Y if X is at the end of a row
+    BNE     #12         #5
+      LDA   _scr_y      _fpage
+      BNE   #$F         #1
+        BRK
+      IDC   #1          #0
+      STA   _scr_y      _fpage
+
+    LDA     _scr_x      _fpage      ; Increment X by 4
+    IDC     #4          #0
+    STA     _scr_x      _fpage
+
+    JMP     loop

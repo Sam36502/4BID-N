@@ -17,9 +17,6 @@
     LDA     #msk_down
     STA     msk_down    varpage
 
-    LDA     #b1000                  ; Set up drawing the "player"
-    STA     _scr_opt    _fpage
-
     LDA     #7                      ; Set start position
     STA     _scr_x      _fpage
     STA     _scr_y      _fpage
@@ -53,6 +50,9 @@
       LDA   _scr_y      _fpage
       IDC   #1          #0
       STA   _scr_y      _fpage
+
+    LDA     #b1000                  ; Set up drawing the "player"
+    STA     _scr_opt    _fpage
 
     LDA     #1                      ; Draw Pixel and loop
     STA     _scr_val    _fpage

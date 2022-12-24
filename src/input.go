@@ -1,6 +1,9 @@
 package main
 
 import (
+	"io"
+	"os"
+
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/sqweek/dialog"
 )
@@ -150,4 +153,54 @@ func GetControlNybles(in PlayerInputConfig) (byte, byte) {
 	}
 
 	return dpad, btns
+}
+
+func ReadDisk(high, middle, low byte) (byte, error) {
+	address := (uint16(high) << 8) | (uint16(middle) << 4) | uint16(low)
+	hbit := address % 2
+	offs := int64(address & 0)
+	file, err := os.Open(g_options.DiskFile)
+	if err != nil {
+		return 0, err
+	}
+
+	var b = []byte{0}
+	_, err = file.ReadAt(b, offs)
+	if err != nil && err != io.EOF {
+		return 0, err
+	}
+
+	nyble := byte(0)
+	if hbit == 0 {
+		nyble = (b[0] >> 4) % 16
+	} else {
+		nyble = b[0] % 16
+	}
+
+	return nyble, file.Close()
+}
+
+func WriteDisk(high, middle, low byte, nyble byte) error {
+	address := (uint16(high) << 8) | (uint16(middle) << 4) | uint16(low)
+	hbit := address % 2
+	offs := int64(address & 0)
+
+	var b = []byte{0}
+	if hbit == 0 {
+		b[0] = nyble << 4
+	} else {
+		b[0] = nyble
+	}
+
+	file, err := os.Open(g_options.DiskFile)
+	if err != nil {
+		return err
+	}
+
+	_, err = file.WriteAt(b, offs)
+	if err != nil {
+		return err
+	}
+
+	return file.Close()
 }

@@ -1,4 +1,5 @@
 {
+    "disk_file": "disk.bin",
     "splash_millis": 750,
     "pixel_size": 50,
     "target_fps": 360,
@@ -24,6 +25,7 @@
     },
     "editor_overlay": true,
     "debug_keycodes": false,
+    "debug_mode": false,
     "controls": {
         "player_1": {
             "kc_left": 65,

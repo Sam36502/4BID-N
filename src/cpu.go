@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"math"
 	"math/rand"
@@ -48,13 +49,14 @@ const (
 
 	FPG_BEEP_VOL = 0x8 // Beeper Volume
 	FPG_BEEP_PTC = 0x9 // Beeper Pitch
-	//FPG_BEEP_ = 0xA // Beeper reserved
-	//FPG_BEEP_ = 0xB // Beeper reserved
+	FPG_BEEP_OPT = 0xA // Beeper reserved
 
-	FPG_RAND = 0xC // Pseudo-Random Number
-	//FPG_ = 0xD //
-	//FPG_ = 0xE //
-	//FPG_ = 0xF //
+	FPG_RAND = 0xB // Pseudo-Random Number
+
+	FPG_DSK_H   = 0xC // High-nyble of disk address   \
+	FPG_DSK_M   = 0xD // Middle-nyble of disk address  } 12-bit Address
+	FPG_DSK_L   = 0xE // Low-nyble of disk address    /
+	FPG_DSK_VAL = 0xF // Value of the selected disk nyble
 )
 
 type Instruction struct {
@@ -156,6 +158,20 @@ func (f *CPU) PerformInstruction(progIndex byte) byte {
 		// Update Screen if screen-value changed
 		if ins.arg2 == 0xF && ins.arg1 == FPG_SCR_VAL {
 			f.updateScreenValue()
+		}
+
+		// Update Disk if disk-value changed
+		if ins.arg2 == 0xF && ins.arg1 == FPG_DSK_VAL {
+			err := WriteDisk(
+				f.mem[0xF][FPG_DSK_H],
+				f.mem[0xF][FPG_DSK_M],
+				f.mem[0xF][FPG_DSK_L],
+				f.acc,
+			)
+			if err != nil {
+				ErrorPopup("Failed to read from disk")
+				fmt.Printf("Failed to read from disk: %v\n", err)
+			}
 		}
 
 	case ASM_IDC:
@@ -263,4 +279,32 @@ func (f *CPU) handleFPage() {
 	beep(Pitch(beepPitch), beepVol)
 
 	f.mem[0xF][FPG_RAND] = byte(rand.Intn(0xF))
+
+	dskVal, err := ReadDisk(
+		f.mem[0xF][FPG_DSK_H],
+		f.mem[0xF][FPG_DSK_M],
+		f.mem[0xF][FPG_DSK_L],
+	)
+	if err != nil {
+		ErrorPopup("Failed to read from disk")
+		fmt.Printf("Failed to read from disk: %v\n", err)
+	}
+	f.mem[0xF][FPG_DSK_VAL] = dskVal
+}
+
+var OPCODE_STR = map[byte]string{
+	0x0: "BRK",
+	0x1: "LDA imm.",
+	0x2: "LDA mem.",
+	0x3: "STA",
+	0x4: "IDC",
+	0x5: "ADD",
+	0x8: "NOT",
+	0x9: "ORA",
+	0xA: "AND",
+	0xB: "SHF",
+	0xC: "SLP",
+	0xD: "BNE",
+	0xE: "JMP imm.",
+	0xF: "JMP mem.",
 }

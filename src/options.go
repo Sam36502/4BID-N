@@ -15,6 +15,7 @@ const (
 var g_options Options = Options{}
 
 type Options struct {
+	DiskFile      string        `json:"disk_file"`
 	SplashMillis  int           `json:"splash_millis"`
 	PixelSize     int           `json:"pixel_size"`
 	TargetFPS     int           `json:"target_fps"`
@@ -25,6 +26,7 @@ type Options struct {
 	ColourOverlay rl.Color      `json:"color_overlay"`
 	EditorOverlay bool          `json:"editor_overlay"`
 	DebugKeycodes bool          `json:"debug_keycodes"`
+	DebugMode     bool          `json:"debug_mode"`
 	Controls      ControlConfig `json:"controls"`
 }
 

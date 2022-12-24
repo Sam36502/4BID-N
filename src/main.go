@@ -64,10 +64,19 @@ func main() {
 
 		case SCRI_RUN:
 			HandleRun()
-			comp.HandleScreen() // Updates F-Page and screen
-			g_insPointer = comp.PerformInstruction(g_insPointer)
-			comp.handleFPage()
+			comp.HandleScreen()
+			if !g_options.DebugMode || rl.IsMouseButtonPressed(g_options.Controls.LeftMouse) {
+				g_insPointer = comp.PerformInstruction(g_insPointer)
+				comp.handleFPage()
+			}
 			DrawBitmap(comp.screen)
+			if g_options.DebugMode {
+				ins := comp.program[g_insPointer]
+				rl.DrawText(
+					fmt.Sprintf("(A:%02d) [IP:%03d]: %X (%s) %X %X", comp.acc, g_insPointer, ins.ins, OPCODE_STR[ins.ins], ins.arg1, ins.arg2),
+					5, 20, 20, rl.Purple,
+				)
+			}
 		}
 
 		// Universal Keys

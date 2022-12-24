@@ -1,0 +1,120 @@
+;
+;   Simple program to write ASCII "Hello, disk!"
+;   To disk file
+;
+
+;   Data: 48 65 6C 6C 6F 2C 20 64 69 73 6B 21
+
+    LDA     #$4
+    STA     _dsk_val
+    LDA     #$1
+    STA     _dsk_l
+    LDA     #$8
+    STA     _dsk_val
+    LDA     #$2
+    STA     _dsk_l
+
+    LDA     #$6
+    STA     _dsk_val
+    LDA     #$3
+    STA     _dsk_l
+    LDA     #$5
+    STA     _dsk_val
+    LDA     #$4
+    STA     _dsk_l
+
+    LDA     #$6
+    STA     _dsk_val
+    LDA     #$5
+    STA     _dsk_l
+    LDA     #$C
+    STA     _dsk_val
+    LDA     #$6
+    STA     _dsk_l
+
+	LDA		#$6
+	STA		_dsk_val
+	LDA		#$7
+	STA		_dsk_l
+	LDA		#$C
+	STA		_dsk_val
+	LDA		#$8
+	STA		_dsk_l
+
+	LDA		#$6
+	STA		_dsk_val
+	LDA		#$9
+	STA		_dsk_l
+	LDA		#$F
+	STA		_dsk_val
+	LDA		#$A
+	STA		_dsk_l
+
+	LDA		#$2
+	STA		_dsk_val
+	LDA		#$B
+	STA		_dsk_l
+	LDA		#$C
+	STA		_dsk_val
+	LDA		#$C
+	STA		_dsk_l
+
+	LDA		#$2
+	STA		_dsk_val
+	LDA		#$D
+	STA		_dsk_l
+	LDA		#$0
+	STA		_dsk_val
+	LDA		#$E
+	STA		_dsk_l
+
+	LDA		#$6
+	STA		_dsk_val
+	LDA		#$F
+	STA		_dsk_l
+
+    LDA     #$1
+    STA     _dsk_m
+
+	LDA		#$4
+	STA		_dsk_val
+	LDA		#$0
+	STA		_dsk_l
+    
+	LDA		#$6
+	STA		_dsk_val
+	LDA		#$1
+	STA		_dsk_l
+	LDA		#$9
+	STA		_dsk_val
+	LDA		#$2
+	STA		_dsk_l
+    
+	LDA		#$7
+	STA		_dsk_val
+	LDA		#$3
+	STA		_dsk_l
+	LDA		#$3
+	STA		_dsk_val
+	LDA		#$4
+	STA		_dsk_l
+    
+	LDA		#$6
+	STA		_dsk_val
+	LDA		#$5
+	STA		_dsk_l
+	LDA		#$B
+	STA		_dsk_val
+	LDA		#$6
+	STA		_dsk_l
+
+	LDA		#$2
+	STA		_dsk_val
+	LDA		#$7
+	STA		_dsk_l
+	LDA		#$1
+	STA		_dsk_val
+	LDA		#$8
+	STA		_dsk_l
+    
+    BRK

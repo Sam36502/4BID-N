@@ -1,0 +1,34 @@
+;
+;   Simple program to demonstrate drawing
+;   and image stored on the disk
+;
+
+    LDA     #b0001                  ; Set screen to horizontal mode
+    STA     _scr_opt    _fpage
+
+.label loop
+
+    LDA     _dsk_val    _fpage      ; Draw disk data to the screen
+    STA     _scr_val    _fpage
+
+    LDA     _dsk_l      _fpage      ; Increment middle nyble if low
+    BNE     #$F         #3          ; nyble has already reached 15
+      LDA   _dsk_m      _fpage
+      INC   #1
+      STA   _dsk_m      _fpage
+
+    LDA     _dsk_l      _fpage      ; Increment disk address
+    INC     #1
+    STA     _dsk_l      _fpage
+
+    LDA     _scr_x      _fpage      ; Increment Y if X is at the end of a row
+    BNE     #12         #5
+      LDA   _scr_y      _fpage
+      INC   #1
+      STA   _scr_y      _fpage
+
+    LDA     _scr_x      _fpage
+    INC     #4
+    STA     _scr_x
+
+    JMP     loop
