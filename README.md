@@ -18,7 +18,7 @@ It's pronounced like "forbidden" and stands for *"4-Bit I DunNo"*
 | 0001   | 1   | LDA    | # -       | Loads an immediate value into acc                            |
 | 0010   | 2   | LDA    | $ $       | Loads the value at address AB into acc                       |
 | 0011   | 3   | STA    | $ $       | Stores the value of acc to address AB                        |
-| 0100   | 4   | INC    | # #       | Increments the acc A many times. Decrements if B > 0         |
+| 0100   | 4   | IDC    | # #       | Increments the acc A many times; Decrements B many times     |
 | 0101   | 5   | ADD    | $ $       | Adds the value at AB to acc                                  |
 | 0110   | 6   |        | - -       | Not assigned                                                 |
 | 0111   | 7   |        | - -       | Not assigned                                                 |
@@ -103,29 +103,37 @@ taken from the zero page. E.g.:
 The F-Page (memory page 15) is reserved for special hardware access such as the input states and
 screen access. These special addresses are as follows:
 
-| Binary | Hex | Name             | Description                                               |
-|--------|-----|------------------|-----------------------------------------------------------|
-| 0000   | 0   | Player 1 D-Pad   | The state of Player 1's D-Pad (DURL)                      |
-| 0001   | 1   | Player 1 Buttons | The state of Player 1's Buttons                           |
-| 0010   | 2   | Player 2 D-Pad   | The state of Player 2's D-Pad (DURL)                      |
-| 0011   | 3   | Player 2 Buttons | The state of Player 2's Buttons                           |
-| 0100   | 4   | Screen X         | Horizontal position on the screen to access               |
-| 0101   | 5   | Screen Y         | Horizontal position on the screen to access               |
-| 0110   | 6   | Pixel Value      | The value of the pixel at the selected position           |
-| 0111   | 7   | Screen Options   | Options for how to operate the screen                     |
-| 1000   | 8   | Beeper Volume    | Sets the volume of the beeper                             |
-| 1001   | 9   | Beeper Pitch     | Sets the pitch of the beeper (See table below)            |
-| 1010   | A   | Beeper Res       | Reserved for future audio features                        |
-| 1011   | B   | Beeper Res       | Reserved for future audio features                        |
-| 1100   | C   | Random Value     | A pseudo-random number                                    |
-| 1101   | D   | N                | Not assigned                                              |
-| 1110   | E   | N                | Not assigned                                              |
-| 1111   | F   | N                | Not assigned                                              |
+| Binary | Hex | Name                    | Description                                     |
+|--------|-----|-------------------------|-------------------------------------------------|
+| 0000   | 0   | Player 1 D-Pad          | The state of Player 1's D-Pad (DURL)            |
+| 0001   | 1   | Player 1 Buttons        | The state of Player 1's Buttons                 |
+| 0010   | 2   | Player 2 D-Pad          | The state of Player 2's D-Pad (DURL)            |
+| 0011   | 3   | Player 2 Buttons        | The state of Player 2's Buttons                 |
+| 0100   | 4   | Screen X                | Horizontal position on the screen to access     |
+| 0101   | 5   | Screen Y                | Horizontal position on the screen to access     |
+| 0110   | 6   | Pixel Value             | The value of the pixel at the selected position |
+| 0111   | 7   | Screen Options          | Options for how to operate the screen           |
+| 1000   | 8   | Sound Volume            | Sets the volume of the beeper                   |
+| 1001   | 9   | Sound Pitch             | Sets the pitch of the beeper (See table below)  |
+| 1010   | A   | Sound Options           | Options for how to operate the sound            |
+| 1011   | B   | Random Value            | A pseudo-random number                          |
+| 1100   | C   | Disk Address N2         | The high-nyble of the disk address              |
+| 1101   | D   | Disk Address N1         | The middle-nyble of the disk address            |
+| 1110   | E   | Disk Address N0         | The low-nyble of the disk address               |
+| 1111   | F   | Disk Data               | The data at the provided disk address           |
 
 #### Controllers
 The console accepts input in the form of 4-directional buttons and 4 regular buttons, the
 state of which is stored in a pair of nybles for each player. (Player 1 and 2's controllers
 are simply mapped to different keys on a keyboard)
+
+Directional Pad (D-Pad)
+| Place | Digit | Key   |
+|-------|-------|-------|
+| 1s    | 000X  | Left  |
+| 2s    | 00X0  | Right |
+| 4s    | 0X00  | Up    |
+| 8s    | X000  | Down  |
 
 #### Screen Control
 The X & Y position variables select a position on the screen which can then be read or written
@@ -180,45 +188,65 @@ The order of these operations is that the screen is first cleared and/or inverte
 then the pixel value address (`0x6`) is updated with the current value on the screen,
 before finally - after the next program instruction has run - the value at the pixel value address (`0x6`) is written to the screen
 
-### Beeper
-The beeper is a basic audio output which can be set to a certain pitch and volume and
+### Sound
+The console has basic audio output which can be set to a certain pitch and volume and
 plays continuously. The volume is simply a range from zero/off up to a maximum of the
-whole program's volume. The pitch is one according to the following table:
+program's master volume (as defined in `options.json`). The pitch is one according to the following table:
+(The octave is set by sound options below)
 
 | Binary | Hex | Note |
 |--------|-----|------|
-| 0000   | 0   | A3   |
-| 0001   | 1   | Bb3  |
-| 0010   | 2   | B3   |
-| 0011   | 3   | C4   |
-| 0100   | 4   | Cs4  |
-| 0101   | 5   | D4   |
-| 0110   | 6   | Ds4  |
-| 0111   | 7   | E4   |
-| 1000   | 8   | F4   |
-| 1001   | 9   | Fs4  |
-| 1010   | A   | G4   |
-| 1011   | B   | Gs4  |
-| 1100   | C   | A4   |
-| 1101   | D   | Bb4  |
-| 1110   | E   | B4   |
-| 1111   | F   | C5   |
+| 0000   | 0   | A    |
+| 0001   | 1   | Bb   |
+| 0010   | 2   | B    |
+| 0011   | 3   | C    |
+| 0100   | 4   | Cs   |
+| 0101   | 5   | D    |
+| 0110   | 6   | Ds   |
+| 0111   | 7   | E    |
+| 1000   | 8   | F    |
+| 1001   | 9   | Fs   |
+| 1010   | A   | G    |
+| 1011   | B   | Gs   |
+| 1100   | C   | A    |
+| 1101   | D   | Bb   |
+| 1110   | E   | B    |
+| 1111   | F   | C    |
+
+#### Sound Options
+The sound options let you select which waveform and octave you're working in.
+
+The upper 2 bits of this nyble select the waveform as follows
+| bits | nr | Wave     |
+|------|----|----------|
+| 00   | 0  | Square   |
+| 01   | 1  | Triangle |
+| 10   | 2  | Sawtooth |
+| 11   | 3  | Noise    |
+
+The lower 2 bits select the octaves as follows:
+| bits | nr | Octave | Lowest Note | Highest Note |
+|------|----|--------|-------------|--------------|
+| 00   | 0  | 2      | A1          | C3           |
+| 01   | 1  | 3      | A2          | C4           |
+| 10   | 2  | 4      | A3          | C5           |
+| 11   | 3  | 5      | A4          | C6           |
     
 ## Options
 If you want to customise the interface, you can do so with the included `options.json` file.
 Options include:
-| JSON Key         | Description |
-|------------------|-------------|
-| `splash_millis`  | How many milliseconds to spend on the splash screen |
-| `pixel_size`     | Side length of the 4BOD pixels in real pixels |
+| JSON Key         | Description                                                                                             |
+|------------------|---------------------------------------------------------------------------------------------------------|
+| `splash_millis`  | How many milliseconds to spend on the splash screen                                                     |
+| `pixel_size`     | Side length of the 4BOD pixels in real pixels                                                           |
 | `target_fps`     | What framerate to limit the program to. Helps to see what's actually happening (set to -1 for no limit) |
-| `color_fg`       | The colour of foreground pixels |
-| `color_bg`       | The colour of background |
-| `color_overlay`  | The colour of the editor overlay |
-| `old_menu`       | Whether to use the old menu images |
-| `editor_overlay` | Whether to have the editor overlay on by default (Should save if turned off with it on) |
-| `debug_keycodes` | Whether to display the last pressed keycode on the screen (helpful for changing controls) |
-| `controls`       | A list of various keys and their keycodes (see `debug_keycodes`) |
+| `color_fg`       | The colour of foreground pixels                                                                         |
+| `color_bg`       | The colour of background                                                                                |
+| `color_overlay`  | The colour of the editor overlay                                                                        |
+| `old_menu`       | Whether to use the old menu images                                                                      |
+| `editor_overlay` | Whether to have the editor overlay on by default (Should save if turned off with it on)                 |
+| `debug_keycodes` | Whether to display the last pressed keycode on the screen (helpful for changing controls)               |
+| `controls`       | A list of various keys and their keycodes (see `debug_keycodes`)                                        |
 
 ## Changing Keyboard Inputs
 The easiest way to change which keys do what is to set the `debug_keycodes` option by setting it to `true`

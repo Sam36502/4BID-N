@@ -18,7 +18,7 @@ const (
 	ASM_LDAM = 0x2 // Load memory value to acc
 	ASM_STA  = 0x3 // Store acc to memory
 
-	ASM_INC = 0x4 // Increment/Decrement acc
+	ASM_IDC = 0x4 // Increment/Decrement acc
 	ASM_ADD = 0x5 // Add memory value to acc
 	//ASM_001 = 0x6 //
 	//ASM_SHL = 0x7 //
@@ -158,19 +158,11 @@ func (f *CPU) PerformInstruction(progIndex byte) byte {
 			f.updateScreenValue()
 		}
 
-	case ASM_INC:
-		if ins.arg2 == 0 {
-			f.acc += ins.arg1
-		} else {
-			f.acc -= ins.arg1
-		}
-
-		if f.acc > 0xF {
-			f.acc = 0
-		}
-		if f.acc < 0 {
-			f.acc = 0xF
-		}
+	case ASM_IDC:
+		f.acc += ins.arg1
+		f.acc %= 16
+		f.acc -= ins.arg2
+		f.acc %= 16
 
 	case ASM_ADD:
 		f.acc += resMem
@@ -239,26 +231,32 @@ func (f *CPU) updateScreenValue() {
 	switch opt % 4 {
 
 	case 0b00:
-		f.screen[y] |= uint16((val % 2)) << (15 - x)
+		f.screen[y] ^= uint16((val % 2)) << (15 - x)
 
 	case 0b01:
-		f.screen[y] |= uint16(val) << (15 - x)
+		f.screen[y] ^= uint16(val) << (15 - 3 - x)
 
 	case 0b10:
-		f.screen[y] |= uint16(((val >> 3) % 2)) << (15 - x)
-		f.screen[y+1] |= uint16(((val >> 2) % 2)) << (15 - x)
-		f.screen[y+2] |= uint16(((val >> 1) % 2)) << (15 - x)
-		f.screen[y+3] |= uint16((val % 2)) << (15 - x)
+		f.screen[y] ^= uint16(((val >> 3) % 2)) << (15 - x)
+		f.screen[y+1] ^= uint16(((val >> 2) % 2)) << (15 - x)
+		f.screen[y+2] ^= uint16(((val >> 1) % 2)) << (15 - x)
+		f.screen[y+3] ^= uint16((val % 2)) << (15 - x)
 
 	case 0b11:
-		f.screen[y] |= uint16(((val >> 2) % 4)) << ((15 - x) % 4)
-		f.screen[y+1] |= uint16((val % 2)) << ((15 - x) % 4)
+		f.screen[y] ^= uint16(((val >> 2) % 4)) << ((15 - 1 - x) % 4)
+		f.screen[y+1] ^= uint16((val % 2)) << ((15 - 1 - x) % 4)
 
 	}
 }
 
 func (f *CPU) handleFPage() {
-	// TODO: Input
+	dpad, btns := GetControlNybles(g_options.Controls.Player1Input)
+	f.mem[0xF][FPG_P1_DPAD] = dpad
+	f.mem[0xF][FPG_P1_BTNS] = btns
+
+	dpad, btns = GetControlNybles(g_options.Controls.Player2Input)
+	f.mem[0xF][FPG_P2_DPAD] = dpad
+	f.mem[0xF][FPG_P2_BTNS] = btns
 
 	beepVol := f.mem[0xF][FPG_BEEP_VOL]
 	beepPitch := f.mem[0xF][FPG_BEEP_PTC]

@@ -2,35 +2,40 @@ package main
 
 import (
 	rl "github.com/gen2brain/raylib-go/raylib"
+	"github.com/sqweek/dialog"
 )
 
 type ControlConfig struct {
-	LeftKey    int32 `json:"kc_left"`
-	RightKey   int32 `json:"kc_right"`
-	UpKey      int32 `json:"kc_up"`
-	DownKey    int32 `json:"kc_down"`
-	ExitKey    int32 `json:"kc_exit"`
-	SelectKey  int32 `json:"kc_enter"`
-	BackKey    int32 `json:"kc_back"`
-	SaveKey    int32 `json:"kc_save"`
-	LoadKey    int32 `json:"kc_load"`
-	OptionsKey int32 `json:"kc_opts"`
-	OverlayKey int32 `json:"kc_overlay"`
-	LeftMouse  int32 `json:"mouse_left"`
+	Player1Input PlayerInputConfig `json:"player_1"`
+	Player2Input PlayerInputConfig `json:"player_2"`
+	ExitKey      int32             `json:"kc_exit"`
+	BackKey      int32             `json:"kc_back"`
+	LeftMouse    int32             `json:"mouse_left"`
+}
+
+type PlayerInputConfig struct {
+	LeftKey  int32 `json:"kc_left"`
+	RightKey int32 `json:"kc_right"`
+	UpKey    int32 `json:"kc_up"`
+	DownKey  int32 `json:"kc_down"`
+	AKey     int32 `json:"kc_a"` // 'Select' in the menu
+	BKey     int32 `json:"kc_b"` // 'Overlay' in the menu
+	XKey     int32 `json:"kc_x"` // 'Load' in the menu
+	YKey     int32 `json:"kc_y"` // 'Save' in the menu
 }
 
 func HandleMenu(f *CPU) {
-	if rl.IsKeyPressed(g_options.Controls.UpKey) {
+	if rl.IsKeyPressed(g_options.Controls.Player1Input.UpKey) {
 		g_menuState = 0
 	}
-	if rl.IsKeyPressed(g_options.Controls.DownKey) {
+	if rl.IsKeyPressed(g_options.Controls.Player1Input.DownKey) {
 		g_menuState = 1
 
 		// Set up vm for running
 		f.ClearMem()
 		g_insPointer = 0
 	}
-	if rl.IsKeyPressed(g_options.Controls.SelectKey) {
+	if rl.IsKeyPressed(g_options.Controls.Player1Input.AKey) {
 		if g_menuState == 0 {
 			g_currentScreen = SCRI_EDITOR
 		} else {
@@ -40,19 +45,19 @@ func HandleMenu(f *CPU) {
 }
 
 func HandleEditor(f *CPU) {
-	if rl.IsKeyPressed(g_options.Controls.UpKey) {
+	if rl.IsKeyPressed(g_options.Controls.Player1Input.UpKey) {
 		g_editorPage--
 		if g_editorPage < 0 {
 			g_editorPage = 0
 		}
 	}
-	if rl.IsKeyPressed(g_options.Controls.DownKey) {
+	if rl.IsKeyPressed(g_options.Controls.Player1Input.DownKey) {
 		g_editorPage++
 		if g_editorPage > 15 {
 			g_editorPage = 15
 		}
 	}
-	if rl.IsKeyPressed(g_options.Controls.OverlayKey) {
+	if rl.IsKeyPressed(g_options.Controls.Player1Input.BKey) {
 		g_options.EditorOverlay = !g_options.EditorOverlay
 	}
 	if rl.IsKeyPressed(g_options.Controls.BackKey) {
@@ -78,39 +83,71 @@ func HandleEditor(f *CPU) {
 	}
 }
 
+func HandleFileMenus(comp *CPU) {
+	if rl.IsKeyPressed(g_options.Controls.Player1Input.XKey) {
+		filename, err := dialog.File().Filter("4BOD Binary File", "4bb").Title("Load 4BOD Program").Load()
+		if err != nil {
+			ErrorPopup("Failed to get filename")
+		} else {
+			err = comp.LoadProgram(filename)
+			if err != nil {
+				ErrorPopup("Failed to load program")
+			}
+		}
+	}
+
+	if rl.IsKeyPressed(g_options.Controls.Player1Input.YKey) {
+		filename, err := dialog.File().Filter("4BOD Binary File", "4bb").Title("Save 4BOD Program").Save()
+		if err != nil {
+			ErrorPopup("Failed to get filename")
+		} else {
+			err = comp.SaveProgram(filename)
+			if err != nil {
+				ErrorPopup("Failed to save program")
+			}
+		}
+	}
+
+}
+
 func HandleRun() {
 	if rl.IsKeyPressed(g_options.Controls.BackKey) {
 		g_currentScreen = SCRI_MENU
 	}
 }
 
-func (c *CPU) HandleInputs() {
-	// Player 1
-	c.mem[0xF][FPG_P1_DPAD] = GetArrowsNybl()
+// Returns the state of a controller in two nybles
+// D-Pad then Buttons
+func GetControlNybles(in PlayerInputConfig) (byte, byte) {
+	var dpad byte = 0
 
-	// TODO: Player 2
-}
-
-// Returns the state of the arrow keys as a nybl:
-// 8s: Down
-// 4s: Up
-// 2s: Right
-// 1s: Left
-func GetArrowsNybl() byte {
-	var nybl byte = 0
-
-	if rl.IsKeyDown(g_options.Controls.LeftKey) {
-		nybl |= 1
+	if rl.IsKeyDown(in.LeftKey) {
+		dpad |= 1
 	}
-	if rl.IsKeyDown(g_options.Controls.RightKey) {
-		nybl |= 2
+	if rl.IsKeyDown(in.RightKey) {
+		dpad |= 2
 	}
-	if rl.IsKeyDown(g_options.Controls.DownKey) {
-		nybl |= 4
+	if rl.IsKeyDown(in.UpKey) {
+		dpad |= 4
 	}
-	if rl.IsKeyDown(g_options.Controls.UpKey) {
-		nybl |= 8
+	if rl.IsKeyDown(in.DownKey) {
+		dpad |= 8
 	}
 
-	return nybl
+	var btns byte = 0
+
+	if rl.IsKeyDown(in.AKey) {
+		btns |= 1
+	}
+	if rl.IsKeyDown(in.BKey) {
+		btns |= 2
+	}
+	if rl.IsKeyDown(in.XKey) {
+		btns |= 4
+	}
+	if rl.IsKeyDown(in.YKey) {
+		btns |= 8
+	}
+
+	return dpad, btns
 }

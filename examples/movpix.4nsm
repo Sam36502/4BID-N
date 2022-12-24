@@ -1,0 +1,59 @@
+;   
+;   Example program to move a pixel around the screen
+;   based on Player-1 D-Pad
+;
+
+.def        msk_left    b0001      ; Set up direction masks
+.def        msk_right   b0010
+.def        msk_up      b0100
+.def        msk_down    b1000
+.def        varpage     $E
+    LDA     #msk_left
+    STA     msk_left    varpage
+    LDA     #msk_right
+    STA     msk_right   varpage
+    LDA     #msk_up
+    STA     msk_up      varpage
+    LDA     #msk_down
+    STA     msk_down    varpage
+
+    LDA     #b1000                  ; Set up drawing the "player"
+    STA     _scr_opt    _fpage
+
+    LDA     #7                      ; Set start position
+    STA     _scr_x      _fpage
+    STA     _scr_y      _fpage
+
+.label loop
+
+    LDA     _p1_dpad    $F          ; Check left
+    AND     msk_left    varpage
+    BNE     #msk_left    #3
+      LDA   _scr_x      _fpage
+      IDC   #0          #1
+      STA   _scr_x      _fpage
+
+    LDA     _p1_dpad    $F          ; Check right
+    AND     msk_right   varpage
+    BNE     #msk_right   #3
+      LDA   _scr_x      _fpage
+      IDC   #1          #0
+      STA   _scr_x      _fpage
+
+    LDA     _p1_dpad    $F          ; Check up
+    AND     msk_up      varpage
+    BNE     #msk_up      #3
+      LDA   _scr_y      _fpage
+      IDC   #0          #1
+      STA   _scr_y      _fpage
+
+    LDA     _p1_dpad    $F          ; Check down
+    AND     msk_down    varpage
+    BNE     #msk_down    #3
+      LDA   _scr_y      _fpage
+      IDC   #1          #0
+      STA   _scr_y      _fpage
+
+    LDA     #1                      ; Draw Pixel and loop
+    STA     _scr_val    _fpage
+    JMP     loop

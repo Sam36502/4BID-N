@@ -6,7 +6,6 @@ import (
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
-	"github.com/sqweek/dialog"
 )
 
 const (
@@ -54,10 +53,12 @@ func main() {
 			g_currentScreen = SCRI_MENU
 
 		case SCRI_MENU:
+			HandleFileMenus(comp)
 			HandleMenu(comp)
 			DrawMenu()
 
 		case SCRI_EDITOR:
+			HandleFileMenus(comp)
 			HandleEditor(comp)
 			DrawEditor(comp)
 
@@ -70,30 +71,6 @@ func main() {
 		}
 
 		// Universal Keys
-		if rl.IsKeyPressed(g_options.Controls.LoadKey) {
-			filename, err := dialog.File().Filter("4BOD Binary File", "4bb").Title("Load 4BOD Program").Load()
-			if err != nil {
-				ErrorPopup("Failed to get filename")
-			} else {
-				err = comp.LoadProgram(filename)
-				if err != nil {
-					ErrorPopup("Failed to load program")
-				}
-			}
-		}
-
-		if rl.IsKeyPressed(g_options.Controls.SaveKey) {
-			filename, err := dialog.File().Filter("4BOD Binary File", "4bb").Title("Save 4BOD Program").Save()
-			if err != nil {
-				ErrorPopup("Failed to get filename")
-			} else {
-				err = comp.SaveProgram(filename)
-				if err != nil {
-					ErrorPopup("Failed to save program")
-				}
-			}
-		}
-
 		if g_options.DebugKeycodes {
 			key := rl.GetKeyPressed()
 			if key != int32(lastKey) && key != 0 {

@@ -1,0 +1,43 @@
+;
+;   Debug program to display the status of the "controllers"
+;
+
+.def    row_p1  6
+.def    row_p2  10
+.def    col_dp  3
+.def    col_btn 10
+
+.label  loop
+
+        LDA     #b1001                  ; Set up Horizontal Mode
+        STA     _scr_opt    _fpage
+
+        LDA     #col_dp                 ; Draw P1 D-Pad
+        STA     _scr_x      _fpage
+        LDA     #row_p1
+        STA     _scr_y      _fpage
+        LDA     _p1_dpad    _fpage
+        STA     _scr_val    _fpage
+
+        LDA     #col_btn                ; Draw P1 Buttons
+        STA     _scr_x      _fpage
+        LDA     #row_p1
+        STA     _scr_y      _fpage
+        LDA     _p1_btns    _fpage
+        STA     _scr_val    _fpage
+
+        LDA     #col_dp                 ; Draw P2 D-Pad
+        STA     _scr_x      _fpage
+        LDA     #row_p2
+        STA     _scr_y      _fpage
+        LDA     _p2_dpad    _fpage
+        STA     _scr_val    _fpage
+
+        LDA     #col_btn                ; Draw P2 Buttons
+        STA     _scr_x      _fpage
+        LDA     #row_p2
+        STA     _scr_y      _fpage
+        LDA     _p2_btns    _fpage
+        STA     _scr_val    _fpage
+
+        JMP     loop
