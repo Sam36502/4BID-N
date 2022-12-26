@@ -63,7 +63,7 @@ func main() {
 			DrawEditor(comp)
 
 		case SCRI_RUN:
-			HandleRun()
+			HandleRun(comp)
 			comp.HandleScreen()
 			if !g_options.DebugMode || rl.IsMouseButtonPressed(g_options.Controls.LeftMouse) {
 				g_insPointer = comp.PerformInstruction(g_insPointer)

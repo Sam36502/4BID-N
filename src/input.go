@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"os"
 
@@ -113,9 +114,14 @@ func HandleFileMenus(comp *CPU) {
 
 }
 
-func HandleRun() {
+func HandleRun(f *CPU) {
 	if rl.IsKeyPressed(g_options.Controls.BackKey) {
 		g_currentScreen = SCRI_MENU
+
+		// Reset computer
+		n := NewCPU()
+		n.program = f.program
+		f = n
 	}
 }
 
@@ -158,7 +164,7 @@ func GetControlNybles(in PlayerInputConfig) (byte, byte) {
 func ReadDisk(high, middle, low byte) (byte, error) {
 	address := (uint16(high) << 8) | (uint16(middle) << 4) | uint16(low)
 	hbit := address % 2
-	offs := int64(address & 0)
+	offs := int64(address >> 1)
 	file, err := os.Open(g_options.DiskFile)
 	if err != nil {
 		return 0, err
@@ -183,7 +189,7 @@ func ReadDisk(high, middle, low byte) (byte, error) {
 func WriteDisk(high, middle, low byte, nyble byte) error {
 	address := (uint16(high) << 8) | (uint16(middle) << 4) | uint16(low)
 	hbit := address % 2
-	offs := int64(address & 0)
+	offs := int64(address >> 1)
 
 	var b = []byte{0}
 	if hbit == 0 {
@@ -197,6 +203,7 @@ func WriteDisk(high, middle, low byte, nyble byte) error {
 		return err
 	}
 
+	fmt.Printf("Wrote to $%03X, b%b (%04b)\n", offs, hbit, nyble)
 	_, err = file.WriteAt(b, offs)
 	if err != nil {
 		return err
