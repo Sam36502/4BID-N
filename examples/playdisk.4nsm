@@ -1,0 +1,31 @@
+;
+;   Music player that reads data from the disk and sets
+;   the sound volume and pitch
+;
+
+.def v_return   $0
+        
+        LDA     _dsk_val    _fpage      ; Read pitch
+        STA     _snd_ptc    _fpage
+
+        LDA     #5                      ; JSR increment disk address
+        STA     v_return    _0page
+        JMP     #inc_dsk
+
+        LDA     _dsk_val    _fpage      ; Read volume
+        STA     _snd_vol    _fpage
+
+        LDA     #0                      ; JSR increment disk address
+        STA     v_return    _0page
+        JMP     #inc_dsk
+
+.label inc_dsk
+        LDA     _dsk_l      _fpage
+        BNE     #$F         #3
+          LDA   _dsk_m      _fpage
+          IDC   #1
+          STA   _dsk_m      _fpage
+        LDA     _dsk_l      _fpage
+        IDC     #1
+        STA     _dsk_l      _fpage
+        JMP     v_return    #0

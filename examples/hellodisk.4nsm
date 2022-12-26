@@ -6,115 +6,115 @@
 ;   Data: 48 65 6C 6C 6F 2C 20 64 69 73 6B 21
 
     LDA     #$4
-    STA     _dsk_val
+    STA     _dsk_val	_fpage
     LDA     #$1
-    STA     _dsk_l
+    STA     _dsk_l		_fpage
     LDA     #$8
-    STA     _dsk_val
+    STA     _dsk_val	_fpage
     LDA     #$2
-    STA     _dsk_l
+    STA     _dsk_l		_fpage
 
     LDA     #$6
-    STA     _dsk_val
+    STA     _dsk_val	_fpage
     LDA     #$3
-    STA     _dsk_l
+    STA     _dsk_l		_fpage
     LDA     #$5
-    STA     _dsk_val
+    STA     _dsk_val	_fpage
     LDA     #$4
-    STA     _dsk_l
+    STA     _dsk_l		_fpage
 
     LDA     #$6
-    STA     _dsk_val
+    STA     _dsk_val	_fpage
     LDA     #$5
-    STA     _dsk_l
+    STA     _dsk_l		_fpage
     LDA     #$C
-    STA     _dsk_val
+    STA     _dsk_val	_fpage
     LDA     #$6
-    STA     _dsk_l
+    STA     _dsk_l		_fpage
 
 	LDA		#$6
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$7
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 	LDA		#$C
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$8
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 
 	LDA		#$6
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$9
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 	LDA		#$F
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$A
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 
 	LDA		#$2
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$B
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 	LDA		#$C
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$C
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 
 	LDA		#$2
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$D
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 	LDA		#$0
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$E
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 
 	LDA		#$6
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$F
-	STA		_dsk_l
-
+	STA		_dsk_l		_fpage
+	LDA		#$4
+	STA		_dsk_val	_fpage
+    
     LDA     #$1
-    STA     _dsk_m
+    STA     _dsk_m      _fpage
 
-	LDA		#$4
-	STA		_dsk_val
 	LDA		#$0
-	STA		_dsk_l
-    
+	STA		_dsk_l		_fpage
+
 	LDA		#$6
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$1
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 	LDA		#$9
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$2
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
     
 	LDA		#$7
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$3
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 	LDA		#$3
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$4
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
     
 	LDA		#$6
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$5
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 	LDA		#$B
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$6
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 
 	LDA		#$2
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$7
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
 	LDA		#$1
-	STA		_dsk_val
+	STA		_dsk_val	_fpage
 	LDA		#$8
-	STA		_dsk_l
+	STA		_dsk_l		_fpage
     
     BRK

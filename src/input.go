@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -190,24 +190,24 @@ func WriteDisk(high, middle, low byte, nyble byte) error {
 	address := (uint16(high) << 8) | (uint16(middle) << 4) | uint16(low)
 	hbit := address % 2
 	offs := int64(address >> 1)
+	nyble = nyble % 16
 
-	var b = []byte{0}
+	data, err := ioutil.ReadFile(g_options.DiskFile)
+	if err != nil {
+		return err
+	}
+
+	for len(data) <= int(offs) {
+		data = append(data, 0)
+	}
+
 	if hbit == 0 {
-		b[0] = nyble << 4
+		data[offs] &= 0b00001111
+		data[offs] |= nyble << 4
 	} else {
-		b[0] = nyble
+		data[offs] &= 0b11110000
+		data[offs] |= nyble
 	}
 
-	file, err := os.Open(g_options.DiskFile)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("Wrote to $%03X, b%b (%04b)\n", offs, hbit, nyble)
-	_, err = file.WriteAt(b, offs)
-	if err != nil {
-		return err
-	}
-
-	return file.Close()
+	return ioutil.WriteFile(g_options.DiskFile, data, FILE_MODE)
 }
