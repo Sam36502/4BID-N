@@ -1,4 +1,7 @@
 @ECHO off
 
 echo "--> Building Windows binary..."
-go build -o bin/win/4bod.exe src\main.go src\screen.go src\fbod.go src\options.go src\input.go
+cd src
+go env -w GO111MODULE=on
+go build -o ../bin/win/4bid-n.exe
+cd ..

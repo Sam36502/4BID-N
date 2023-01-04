@@ -78,7 +78,6 @@ func NewCPU() *CPU {
 	f := CPU{
 		acc:       0,
 		mem:       [16][16]byte{},
-		flags:     [16]byte{},
 		screen:    [16]uint16{},
 		program:   [256]Instruction{},
 		isRunning: true,
@@ -221,8 +220,13 @@ func (f *CPU) PerformInstruction(progIndex byte) byte {
 		scale := (ins.arg1 >> 1) % 8
 		mul := math.Pow10(int(scale) - 4)
 		length := (ins.arg1%2)<<4 | ins.arg2
-		dur := time.Duration(mul * float64(length) * float64(time.Second.Milliseconds()))
-		time.Sleep(dur)
+		dur := time.Duration(mul * float64(length) * float64(time.Second.Nanoseconds()))
+		//time.Sleep(dur)
+
+		f.isRunning = false
+		time.AfterFunc(dur, func() {
+			f.isRunning = true
+		})
 
 	case ASM_JMPI:
 		nextIndex = (ins.arg2 * 0xF) + ins.arg1
@@ -274,9 +278,12 @@ func (f *CPU) handleFPage() {
 	f.mem[0xF][FPG_P2_DPAD] = dpad
 	f.mem[0xF][FPG_P2_BTNS] = btns
 
-	beepVol := f.mem[0xF][FPG_BEEP_VOL]
-	beepPitch := f.mem[0xF][FPG_BEEP_PTC]
-	beep(Pitch(beepPitch), beepVol)
+	soundVol := f.mem[0xF][FPG_BEEP_VOL]
+	soundPitch := f.mem[0xF][FPG_BEEP_PTC]
+	soundOpt := f.mem[0xF][FPG_BEEP_OPT]
+	wav := (soundOpt >> 2) % 4
+	oct := soundOpt % 4
+	beep(Pitch(soundPitch), oct, wav, soundVol)
 
 	f.mem[0xF][FPG_RAND] = byte(rand.Intn(0xF))
 

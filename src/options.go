@@ -15,19 +15,23 @@ const (
 var g_options Options = Options{}
 
 type Options struct {
-	DiskFile      string        `json:"disk_file"`
-	SplashMillis  int           `json:"splash_millis"`
-	PixelSize     int           `json:"pixel_size"`
-	TargetFPS     int           `json:"target_fps"`
-	BeeperVol     float32       `json:"beeper_vol"`
-	BeeperSample  string        `json:"beeper_sample"`
-	ColourFG      rl.Color      `json:"color_fg"`
-	ColourBG      rl.Color      `json:"color_bg"`
-	ColourOverlay rl.Color      `json:"color_overlay"`
-	EditorOverlay bool          `json:"editor_overlay"`
-	DebugKeycodes bool          `json:"debug_keycodes"`
-	DebugMode     bool          `json:"debug_mode"`
-	Controls      ControlConfig `json:"controls"`
+	DiskFile       string        `json:"disk_file"`
+	SplashMillis   int           `json:"splash_millis"`
+	PixelSize      int           `json:"pixel_size"`
+	TargetFPS      int           `json:"target_fps"`
+	MasterVol      float32       `json:"master_vol"`
+	SamplePitch    float64       `json:"sample_pitch"`
+	SquareSample   string        `json:"square_sample"`
+	TriangleSample string        `json:"triangle_sample"`
+	SawtoothSample string        `json:"sawtooth_sample"`
+	NoiseSample    string        `json:"noise_sample"`
+	ColourFG       rl.Color      `json:"color_fg"`
+	ColourBG       rl.Color      `json:"color_bg"`
+	ColourOverlay  rl.Color      `json:"color_overlay"`
+	EditorOverlay  bool          `json:"editor_overlay"`
+	DebugKeycodes  bool          `json:"debug_keycodes"`
+	DebugMode      bool          `json:"debug_mode"`
+	Controls       ControlConfig `json:"controls"`
 }
 
 func LoadOptions() error {

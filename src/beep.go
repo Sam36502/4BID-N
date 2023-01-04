@@ -27,33 +27,67 @@ const (
 	PITCH_C5  = Pitch(15)
 )
 
-var g_beeperSample rl.Sound
+const (
+	OCTAVE_2 = 0
+	OCTAVE_3 = 1
+	OCTAVE_4 = 2
+	OCTAVE_5 = 3
+)
+
+const (
+	WAVE_SQUARE   = 0
+	WAVE_TRIANGLE = 1
+	WAVE_SAWTOOTH = 2
+	WAVE_NOISE    = 3
+)
+
+const SEMITONE_INTERVAL = 1.059463
+
+var g_samples [4]rl.Sound
+var g_prevWave byte
+var g_prevOct byte
 var g_prevPitch Pitch
 var g_prevVol byte
 
 func InitAudio() {
 	rl.InitAudioDevice()
-	rl.SetMasterVolume(g_options.BeeperVol)
-	g_beeperSample = rl.LoadSound(g_options.BeeperSample)
+	rl.SetMasterVolume(g_options.MasterVol)
+	g_samples = [4]rl.Sound{
+		WAVE_SQUARE:   rl.LoadSound(g_options.SquareSample),
+		WAVE_TRIANGLE: rl.LoadSound(g_options.TriangleSample),
+		WAVE_SAWTOOTH: rl.LoadSound(g_options.SawtoothSample),
+		WAVE_NOISE:    rl.LoadSound(g_options.NoiseSample),
+	}
 }
 
-// Plays a beep with a given pitch and volume
-func beep(p Pitch, v byte) {
-	v %= 0xF
-	if p != g_prevPitch || v != g_prevVol {
-		if v > 0 {
-			rl.SetSoundVolume(g_beeperSample, float32(0xF)/float32(v))
-			rl.SetSoundPitch(g_beeperSample, 0.5*float32(math.Pow(1.0594, float64(p))))
-			rl.PlaySound(g_beeperSample)
+// Plays a beep with a given pitch, octave, waveform and volume
+func beep(ptc Pitch, oct byte, wave byte, vol byte) {
+	vol %= 0xF
+	if wave != g_prevWave || oct != g_prevOct || ptc != g_prevPitch || vol != g_prevVol {
+		if vol > 0 {
+			rl.SetSoundVolume(g_samples[wave], (1/float32(0xF))*float32(vol))
+			pitchMul := float32(math.Pow(SEMITONE_INTERVAL, float64(ptc))) * float32(oct+1)
+			rl.SetSoundPitch(g_samples[wave], pitchMul)
+			rl.PlaySound(g_samples[wave])
 		} else {
-			rl.StopSound(g_beeperSample)
+			rl.StopSound(g_samples[wave])
 		}
-		g_prevPitch = p
-		g_prevVol = v
+		g_prevWave = wave
+		g_prevOct = oct
+		g_prevPitch = ptc
+		g_prevVol = vol
+	}
+}
+
+func StopAllSounds() {
+	for _, s := range g_samples {
+		rl.StopSound(s)
 	}
 }
 
 func CloseAudio() {
-	rl.UnloadSound(g_beeperSample)
+	for _, s := range g_samples {
+		rl.UnloadSound(s)
+	}
 	rl.CloseAudioDevice()
 }

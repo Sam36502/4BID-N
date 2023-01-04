@@ -34,15 +34,15 @@ func HandleMenu(f *CPU) {
 	}
 	if rl.IsKeyPressed(g_options.Controls.Player1Input.DownKey) {
 		g_menuState = 1
-
-		// Set up vm for running
-		f.ClearMem()
-		g_insPointer = 0
 	}
 	if rl.IsKeyPressed(g_options.Controls.Player1Input.AKey) {
 		if g_menuState == 0 {
 			g_currentScreen = SCRI_EDITOR
 		} else {
+			// Set up vm for running
+			f.ClearMem()
+			g_insPointer = 0
+
 			g_currentScreen = SCRI_RUN
 		}
 	}
@@ -117,11 +117,7 @@ func HandleFileMenus(comp *CPU) {
 func HandleRun(f *CPU) {
 	if rl.IsKeyPressed(g_options.Controls.BackKey) {
 		g_currentScreen = SCRI_MENU
-
-		// Reset computer
-		n := NewCPU()
-		n.program = f.program
-		f = n
+		StopAllSounds()
 	}
 }
 
