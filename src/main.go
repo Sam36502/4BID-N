@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	WINDOW_TITLE = "FBID-N"
+	WINDOW_TITLE = "4BID-N"
 )
 
 var g_currentScreen int
@@ -64,6 +64,7 @@ func main() {
 
 		case SCRI_RUN:
 			HandleRun(comp)
+			HandleSound()
 			comp.HandleScreen()
 			if !g_options.DebugMode || rl.IsMouseButtonPressed(g_options.Controls.LeftMouse) {
 				g_insPointer = comp.PerformInstruction(g_insPointer)

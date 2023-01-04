@@ -2,7 +2,7 @@
     "disk_file": "disk.bin",
     "splash_millis": 750,
     "pixel_size": 50,
-    "target_fps": 360,
+    "target_fps": -1,
     "master_vol": 0.5,
     "sample_pitch": 55,
     "square_sample": "resources/square.wav",

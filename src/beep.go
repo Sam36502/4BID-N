@@ -43,11 +43,14 @@ const (
 
 const SEMITONE_INTERVAL = 1.059463
 
+// TODO: Rewrite and package these in a struct
 var g_samples [4]rl.Sound
 var g_prevWave byte
 var g_prevOct byte
 var g_prevPitch Pitch
 var g_prevVol byte
+var g_currSound rl.Sound
+var g_isPlaying bool
 
 func InitAudio() {
 	rl.InitAudioDevice()
@@ -66,11 +69,13 @@ func beep(ptc Pitch, oct byte, wave byte, vol byte) {
 	if wave != g_prevWave || oct != g_prevOct || ptc != g_prevPitch || vol != g_prevVol {
 		if vol > 0 {
 			rl.SetSoundVolume(g_samples[wave], (1/float32(0xF))*float32(vol))
-			pitchMul := float32(math.Pow(SEMITONE_INTERVAL, float64(ptc))) * float32(oct+1)
+			pitchMul := float32(math.Pow(SEMITONE_INTERVAL, float64(ptc))) * float32(math.Pow(2, float64(oct)))
 			rl.SetSoundPitch(g_samples[wave], pitchMul)
-			rl.PlaySound(g_samples[wave])
+			rl.StopSound(g_currSound)
+			g_currSound = g_samples[wave]
+			g_isPlaying = true
 		} else {
-			rl.StopSound(g_samples[wave])
+			g_isPlaying = false
 		}
 		g_prevWave = wave
 		g_prevOct = oct
@@ -80,8 +85,19 @@ func beep(ptc Pitch, oct byte, wave byte, vol byte) {
 }
 
 func StopAllSounds() {
+	g_isPlaying = false
 	for _, s := range g_samples {
 		rl.StopSound(s)
+	}
+}
+
+func HandleSound() {
+	if g_isPlaying {
+		if !rl.IsSoundPlaying(g_currSound) {
+			rl.PlaySound(g_currSound)
+		}
+	} else {
+		rl.StopSound(g_currSound)
 	}
 }
 

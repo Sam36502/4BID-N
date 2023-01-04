@@ -20,7 +20,7 @@ type Options struct {
 	PixelSize      int           `json:"pixel_size"`
 	TargetFPS      int           `json:"target_fps"`
 	MasterVol      float32       `json:"master_vol"`
-	SamplePitch    float64       `json:"sample_pitch"`
+	SamplePitch    float32       `json:"sample_pitch"`
 	SquareSample   string        `json:"square_sample"`
 	TriangleSample string        `json:"triangle_sample"`
 	SawtoothSample string        `json:"sawtooth_sample"`

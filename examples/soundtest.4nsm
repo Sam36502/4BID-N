@@ -1,0 +1,25 @@
+;
+;   Program to test the audio capabilities of the 4BID-N
+;   Plays a C in all octaves and waves and then the noise wave
+;
+
+    LDA     #3                      ; Set up to play 'C' at half volume
+    STA     _snd_ptc    _fpage
+    LDA     #12
+    STA     _snd_vol    _fpage
+
+    LDA     #0
+
+.label      loop
+
+    STA     _snd_opt    _fpage
+    IDC     #1
+
+    SLP     #b0110      #5          ; Wait 500ms between notes
+
+    BNE     #13         #3          ; End if the counter has reached 13
+      LDA   #0
+      STA   _snd_vol    _fpage
+      BRK
+
+    JMP     #loop
