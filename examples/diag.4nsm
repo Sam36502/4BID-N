@@ -15,4 +15,4 @@
         STA     _scr_x      _fpage      
         STA     _scr_y      _fpage
 
-        JMP     loop                    ; Jump back to top of loop
+        JMP     #loop                    ; Jump back to top of loop

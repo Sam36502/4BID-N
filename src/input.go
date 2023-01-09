@@ -41,6 +41,7 @@ func HandleMenu(f *CPU) {
 		} else {
 			// Set up vm for running
 			f.ClearMem()
+			f.handleFPage()
 			g_insPointer = 0
 
 			g_currentScreen = SCRI_RUN

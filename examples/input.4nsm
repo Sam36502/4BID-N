@@ -40,4 +40,4 @@
         LDA     _p2_btns    _fpage
         STA     _scr_val    _fpage
 
-        JMP     loop
+        JMP     #loop

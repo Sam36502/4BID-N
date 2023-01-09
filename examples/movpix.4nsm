@@ -56,4 +56,4 @@
 
     LDA     #1                      ; Draw Pixel and loop
     STA     _scr_val    _fpage
-    JMP     loop
+    JMP     #loop

@@ -229,12 +229,12 @@ func (f *CPU) PerformInstruction(progIndex byte) byte {
 		})
 
 	case ASM_JMPI:
-		nextIndex = (ins.arg2 * 0xF) + ins.arg1
+		nextIndex = (ins.arg2 * 16) + ins.arg1
 
 	case ASM_JMPM:
 		addr := f.mem[0x0][ins.arg1]
 		page := f.mem[0x0][ins.arg2]
-		nextIndex = (page * 0xF) + addr
+		nextIndex = (page * 16) + addr
 
 	}
 

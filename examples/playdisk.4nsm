@@ -1,25 +1,43 @@
 ;
 ;   Music player that reads data from the disk and sets
-;   the sound volume and pitch
+;   the sound volume, pitch and options nyble by nyble
 ;
 
-.def v_return   $0
-        
+        LDA     _dsk_val    _fpage      ; Read Options nybble
+        STA     _snd_opt    _fpage
+        LDA     #1
+        STA     _dsk_l      _fpage
+
+        .def    varpage     $1          ; Set beat duration in 10ths of a second
+        .def    beatDur     $0
+        LDA     _dsk_val    _fpage
+        STA     beatDur     varpage
+        LDA     #2
+        STA     _dsk_l      _fpage
+
+.label loop
         LDA     _dsk_val    _fpage      ; Read pitch
         STA     _snd_ptc    _fpage
-
-        LDA     #5                      ; JSR increment disk address
-        STA     v_return    _0page
-        JMP     #inc_dsk
+        .jsr    inc_dsk
 
         LDA     _dsk_val    _fpage      ; Read volume
         STA     _snd_vol    _fpage
+        .jsr    inc_dsk
 
-        LDA     #0                      ; JSR increment disk address
-        STA     v_return    _0page
-        JMP     #inc_dsk
+        .def    counter     $1          ; Sleep 1/10 sec for as many times as defined on the disk
+        LDA     beatDur     varpage
+        STA     counter     varpage
 
-.label inc_dsk
+.label sleeper
+        LDA     counter     varpage
+        BNE     #0          #1
+          JMP   #loop
+        IDC     #0          #1
+        STA     counter     varpage
+        SLP     #b0110      #1          ; Sleep set number of 10ths of seconds
+        JMP     #sleeper
+
+.sub inc_dsk
         LDA     _dsk_l      _fpage
         BNE     #$F         #3
           LDA   _dsk_m      _fpage
@@ -28,4 +46,4 @@
         LDA     _dsk_l      _fpage
         IDC     #1
         STA     _dsk_l      _fpage
-        JMP     v_return    #0
+.rts

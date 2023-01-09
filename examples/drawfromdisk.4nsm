@@ -12,25 +12,27 @@
     STA     _scr_val    _fpage
 
     LDA     _dsk_l      _fpage      ; Increment middle nyble if low
-    BNE     #$F         #3          ; nyble has already reached 15
+    BNE     #$F                     ; nyble has already reached 15
       LDA   _dsk_m      _fpage
       IDC   #1
       STA   _dsk_m      _fpage
+    .ebr
 
     LDA     _dsk_l      _fpage      ; Increment disk address
     IDC     #1
     STA     _dsk_l      _fpage
 
     LDA     _scr_x      _fpage      ; Increment Y if X is at the end of a row
-    BNE     #12         #5
+    BNE     #12
       LDA   _scr_y      _fpage
       BNE   #15         #1
         BRK
       IDC   #1
       STA   _scr_y      _fpage
+    .ebr
 
     LDA     _scr_x      _fpage
     IDC     #4
     STA     _scr_x      _fpage
 
-    JMP     loop
+    JMP     #loop

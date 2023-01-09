@@ -23,4 +23,4 @@
     IDC     #4          #0
     STA     _scr_x      _fpage
 
-    JMP     loop
+    JMP     #loop
