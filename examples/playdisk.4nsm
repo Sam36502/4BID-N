@@ -1,31 +1,45 @@
 ;
 ;   Music player that reads data from the disk and sets
-;   the sound volume, pitch and options nyble by nyble
+;   the sound volume and pitch nyble by nyble
 ;
+;   The first two nybles in the file set the sound
+;   options and beat duration.
+;
+;   Song ends when a 0x00 is read, so all rests should
+;   be at a pitch other than 0
 
-        LDA     _dsk_val    _fpage      ; Read Options nybble
+
+        .def    varpage     $1          ; Define variables
+        .def    beatDur     $0
+        .def    counter     $1
+        .def    prevRead    $2
+
+        LDA     _dsk_val    _fpage      ; Read Options nyble
         STA     _snd_opt    _fpage
         LDA     #1
         STA     _dsk_l      _fpage
 
-        .def    varpage     $1          ; Set beat duration in 10ths of a second
-        .def    beatDur     $0
-        LDA     _dsk_val    _fpage
+        LDA     _dsk_val    _fpage      ; Set beat duration in 10ths of a second
         STA     beatDur     varpage
         LDA     #2
         STA     _dsk_l      _fpage
 
 .label loop
         LDA     _dsk_val    _fpage      ; Read pitch
+        STA     prevRead    varpage
         STA     _snd_ptc    _fpage
         .jsr    inc_dsk
+
+        LDA     _dsk_val    _fpage      ; Check if end of song has been reached (0x00)
+        ORA     prevRead    varpage
+        BNE     #0          #1
+          BRK
 
         LDA     _dsk_val    _fpage      ; Read volume
         STA     _snd_vol    _fpage
         .jsr    inc_dsk
 
-        .def    counter     $1          ; Sleep 1/10 sec for as many times as defined on the disk
-        LDA     beatDur     varpage
+        LDA     beatDur     varpage     ; Sleep 1/10 sec for as many times as defined on the disk
         STA     counter     varpage
 
 .label sleeper
